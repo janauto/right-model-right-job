@@ -1,11 +1,14 @@
 flowchart TD
-    Start(["复杂任务 · Plan 模式"]) --> Plan["主控：规划 / 拆分决策"]
-    Plan --> Decide{"该拆分吗？<br/>默认 0 子 Agent"}
+    Start(["Plan 模式 · 项目级任务"]) --> G0{{"G0 · 启用确认弹窗<br/>是否采用编排流程？"}}
+    G0 -->|"否"| Off["主控直跑<br/>编排规则不生效"]
+    G0 -->|"是"| G1{{"G1 · 规划模型确认弹窗<br/>默认最强模型"}}
+    G1 --> P1["P1 · 需求调研<br/>researcher / fast-worker<br/>只读并行 ≤ 3"]
+    P1 --> G2{{"G2 · 需求文档终审弹窗<br/>REQUIREMENTS.md"}}
+    G2 -->|"修改 / 补充调研"| P1
+    G2 -->|"用户确认"| Plan["P2 · 主控拆分决策<br/>默认 0 子 Agent"]
 
-    Decide -->|"不满足条件"| Solo["主控派单个 Agent<br/>一次做完"]
-    Decide -->|"满足任一：独立可契约 /<br/>检索噪音大 / 需黑盒验收"| Gate{{"ORCHESTRATION 开关<br/>ask · auto · off"}}
-
-    Gate --> Pool
+    Plan -->|"不满足拆分条件"| Solo["主控派单个 Agent<br/>一次做完"]
+    Plan -->|"满足任一：独立可契约 /<br/>检索噪音大 / 需黑盒验收"| Pool
 
     subgraph Pool ["按上下文边界拆分 · 上限 5 · 禁按工种拆"]
         direction LR

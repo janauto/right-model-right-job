@@ -1,0 +1,23 @@
+flowchart TD
+    Start(["复杂任务 · Plan 模式"]) --> Plan["主控：规划 / 拆分决策"]
+    Plan --> Decide{"该拆分吗？<br/>默认 0 子 Agent"}
+
+    Decide -->|"不满足条件"| Solo["主控派单个 Agent<br/>一次做完"]
+    Decide -->|"满足任一：独立可契约 /<br/>检索噪音大 / 需黑盒验收"| Gate{{"ORCHESTRATION 开关<br/>ask · auto · off"}}
+
+    Gate --> Pool
+
+    subgraph Pool ["按上下文边界拆分 · 上限 5 · 禁按工种拆"]
+        direction LR
+        DR["deep-reasoner · Opus<br/>架构 / 算法 / 根因"]
+        FW["fast-worker · Sonnet<br/>样板 / 批量 / 检索"]
+    end
+
+    Solo --> QA["qa · Opus<br/>黑盒验收 + 机械合并"]
+    Pool --> QA
+
+    QA --> Conflict{"语义冲突？"}
+    Conflict -->|"是 = 验收失败"| Repair["修复回路<br/>重派同角色新实例"]
+    Repair -->|"重试 ≤ 2 次"| QA
+    Repair -->|"超限"| Ask["AskUserQuestion<br/>交用户三选一"]
+    Conflict -->|"否 · 全部通过"| Done["主控：汇总 + 终验<br/>读 qa-report + 抽查"]
